@@ -152,7 +152,7 @@ const AgentDashboard: React.FC<AgentDashboardProps> = ({ currentUser }) => {
                       <div className="w-16 h-16 bg-white rounded-[1.75rem] flex items-center justify-center text-3xl shadow-sm">🎁</div>
                       <div>
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Navbatdagi Sovg'a</p>
-                         <p className="text-md font-black text-emerald-700">{rewardInfo.next?.name || 'Marafonda g'alaba!'}</p>
+                         <p className="text-md font-black text-emerald-700">{rewardInfo.next?.name || "Marafonda g'alaba!"}</p>
                       </div>
                    </div>
                 </div>
