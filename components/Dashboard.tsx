@@ -7,15 +7,17 @@ import AgentStatsView from './AgentStatsView';
 import ReportingView from './ReportingView';
 import BonusesView from './BonusesView';
 import ProfileView from './ProfileView';
+import TreasuryView from './TreasuryView';
+import PlansView from './PlansView';
 import Chat from './Chat';
-import { LogOut, LayoutDashboard, Menu, ClipboardList, Gift, User as UserIcon, MessageSquare } from 'lucide-react';
+import { LogOut, LayoutDashboard, Menu, ClipboardList, Gift, User as UserIcon, MessageSquare, Wallet, Target } from 'lucide-react';
 
 interface DashboardProps {
   user: User;
   onLogout: () => void;
 }
 
-export type AppTab = 'DASHBOARD' | 'REPORTING' | 'BONUSES' | 'PROFILE' | 'CHAT' | 'DIRECTOR_CONTROL';
+export type AppTab = 'DASHBOARD' | 'REPORTING' | 'BONUSES' | 'PROFILE' | 'CHAT' | 'DIRECTOR_CONTROL' | 'TREASURY' | 'PLANS';
 
 const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const [currentUser, setCurrentUser] = useState<User>(user);
@@ -63,11 +65,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     }
   };
 
-  const addSale = (newSale: SaleRecord) => {
-    const updatedSales = [...sales, newSale];
-    updateSales(updatedSales);
-  };
-
   const calculateAgentStats = (agentId: string): AgentStats => {
     const agent = allUsers.find(u => u.id === agentId);
     const agentSales = sales.filter(s => s.agentId === agentId && s.status === 'APPROVED');
@@ -98,7 +95,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
   const NavButton = ({ tab, icon: Icon, label }: { tab: AppTab, icon: any, label: string }) => (
     <button 
       onClick={() => { setActiveTab(tab); setIsSidebarOpen(false); }}
-      className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl font-black transition-all text-xs uppercase tracking-widest ${activeTab === tab ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+      className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black transition-all text-xs uppercase tracking-widest ${activeTab === tab ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
     >
       <Icon size={18} />
       {label}
@@ -109,36 +106,36 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
     <div className="flex min-h-screen bg-slate-50">
       {isSidebarOpen && <div className="fixed inset-0 bg-black/40 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)}></div>}
 
-      <aside className={`fixed md:static inset-y-0 left-0 w-72 bg-slate-900 text-white z-30 transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} border-r border-slate-800`}>
-        <div className="h-full flex flex-col">
-          <div className="p-8 border-b border-slate-800">
-            <h1 className="font-black text-3xl tracking-tighter">GIGO TOY</h1>
-            <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.4em] mt-1">{currentUser.role === 'DIRECTOR' ? 'Director Panel' : 'Agent Office'}</p>
-          </div>
+      <aside className={`fixed md:static inset-y-0 left-0 w-80 bg-slate-900 text-white z-30 transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} border-r border-slate-800 flex flex-col`}>
+        <div className="p-8 border-b border-slate-800">
+          <h1 className="font-black text-3xl tracking-tighter">GIGO TOY</h1>
+          <p className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.4em] mt-1">{currentUser.role === 'DIRECTOR' ? 'Director Mode' : 'Agent Office'}</p>
+        </div>
 
-          <nav className="flex-1 p-5 space-y-3">
-            {currentUser.role === 'DIRECTOR' ? (
-              <>
-                <NavButton tab="DIRECTOR_CONTROL" icon={LayoutDashboard} label="Boshqaruv" />
-                <NavButton tab="CHAT" icon={MessageSquare} label="Kompaniya Chati" />
-                <NavButton tab="PROFILE" icon={UserIcon} label="Profilim" />
-              </>
-            ) : (
-              <>
-                <NavButton tab="DASHBOARD" icon={LayoutDashboard} label="Statistika" />
-                <NavButton tab="BONUSES" icon={Gift} label="Bonuslar" />
-                <NavButton tab="REPORTING" icon={ClipboardList} label="Hisobotlar" />
-                <NavButton tab="CHAT" icon={MessageSquare} label="Chat" />
-                <NavButton tab="PROFILE" icon={UserIcon} label="Profilim" />
-              </>
-            )}
-          </nav>
+        <nav className="flex-1 p-5 space-y-2 overflow-y-auto custom-scrollbar">
+          {currentUser.role === 'DIRECTOR' ? (
+            <>
+              <NavButton tab="DIRECTOR_CONTROL" icon={LayoutDashboard} label="Boshqaruv Markazi" />
+              <NavButton tab="CHAT" icon={MessageSquare} label="Kompaniya Chati" />
+              <NavButton tab="PROFILE" icon={UserIcon} label="Profilim" />
+            </>
+          ) : (
+            <>
+              <NavButton tab="DASHBOARD" icon={LayoutDashboard} label="Savdo Tahlili" />
+              <NavButton tab="TREASURY" icon={Wallet} label="Xazna & Chiqim" />
+              <NavButton tab="PLANS" icon={Target} label="Reja & Maqsadlar" />
+              <NavButton tab="BONUSES" icon={Gift} label="Bonus & Mukofotlar" />
+              <NavButton tab="REPORTING" icon={ClipboardList} label="Kunlik Hisobot" />
+              <NavButton tab="CHAT" icon={MessageSquare} label="Chat" />
+              <NavButton tab="PROFILE" icon={UserIcon} label="Profilim" />
+            </>
+          )}
+        </nav>
 
-          <div className="p-5 border-t border-slate-800">
-            <button onClick={onLogout} className="w-full flex items-center gap-4 px-6 py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
-              <LogOut size={18} /> Chiqish
-            </button>
-          </div>
+        <div className="p-5 border-t border-slate-800">
+          <button onClick={onLogout} className="w-full flex items-center gap-4 px-6 py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
+            <LogOut size={18} /> Chiqish
+          </button>
         </div>
       </aside>
 
@@ -147,11 +144,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
           <div className="flex items-center gap-4">
             <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-slate-500 md:hidden"><Menu size={20} /></button>
             <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-               {activeTab === 'DASHBOARD' ? 'Tahlillar' : 
-                activeTab === 'BONUSES' ? 'Muvaffaqiyat' : 
-                activeTab === 'REPORTING' ? 'Hisobotlar' : 
-                activeTab === 'PROFILE' ? 'Shaxsiy Xona' : 
-                activeTab === 'CHAT' ? 'Muloqot' : 'Direktor Markazi'}
+               {activeTab === 'DASHBOARD' ? 'Mening Statistikam' : 
+                activeTab === 'TREASURY' ? 'Moliya va Xazna' : 
+                activeTab === 'PLANS' ? 'Rejalar & Maqsadlar' : 
+                activeTab === 'BONUSES' ? 'Muvaffaqiyat Cho\'qqisi' : 
+                activeTab === 'REPORTING' ? 'Kunlik Hisobot Topshirish' : 
+                activeTab === 'PROFILE' ? 'Shaxsiy Ma\'lumotlar' : 
+                activeTab === 'CHAT' ? 'Muloqot Xonasi' : 'Direktor Boshqaruv Markazi'}
             </h2>
           </div>
           <div className="flex items-center gap-4">
@@ -159,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                 <span className="text-sm font-black text-slate-800 block leading-none">{currentUser.name}</span>
                 <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">{currentUser.status || 'Status yo\'q'}</span>
              </div>
-             <div className="w-11 h-11 bg-indigo-600 text-white rounded-[1.2rem] flex items-center justify-center font-black border border-indigo-700 shadow-lg">{currentUser.name.charAt(0)}</div>
+             <div className="w-12 h-12 bg-indigo-600 text-white rounded-[1.4rem] flex items-center justify-center font-black border border-indigo-700 shadow-xl">{currentUser.name.charAt(0)}</div>
           </div>
         </header>
 
@@ -174,6 +173,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
               calculateStats={calculateAgentStats}
               allUsers={allUsers}
             />
+          ) : activeTab === 'TREASURY' ? (
+             <TreasuryView user={currentUser} onUpdateUser={updateUserData} />
+          ) : activeTab === 'PLANS' ? (
+             <PlansView user={currentUser} onUpdateUser={updateUserData} />
           ) : activeTab === 'CHAT' ? (
              <Chat currentUser={currentUser} />
           ) : activeTab === 'DASHBOARD' ? (
@@ -181,7 +184,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
           ) : activeTab === 'BONUSES' ? (
             <BonusesView stats={calculateAgentStats(currentUser.id)} plan={plans.find(p => p.agentId === currentUser.id && p.isActive)} />
           ) : activeTab === 'REPORTING' ? (
-            <ReportingView user={currentUser} sales={sales.filter(s => s.agentId === currentUser.id)} onAddSale={addSale} onUpdateSale={(updated) => updateSales(sales.map(s => s.id === updated.id ? updated : s))} stats={calculateAgentStats(currentUser.id)} />
+            <ReportingView user={currentUser} sales={sales.filter(s => s.agentId === currentUser.id)} onAddSale={(sale) => updateSales([...sales, sale])} onUpdateSale={(updated) => updateSales(sales.map(s => s.id === updated.id ? updated : s))} stats={calculateAgentStats(currentUser.id)} />
           ) : activeTab === 'PROFILE' ? (
             <ProfileView user={currentUser} stats={calculateAgentStats(currentUser.id)} onUpdateProfile={updateUserData} />
           ) : null}

@@ -1,8 +1,19 @@
 
 export type Role = 'DIRECTOR' | 'AGENT';
-export type Timeframe = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
 export type ReportStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-export type TransactionType = 'SALARY' | 'BONUS' | 'REWARD' | 'AVANS';
+export type TransactionType = 'SALARY' | 'BONUS' | 'REWARD' | 'AVANS' | 'EXPENSE';
+
+// Added Timeframe type used in analytics and view state
+export type Timeframe = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'YEARLY';
+
+// Added Reward interface used for gamification and milestones
+export interface Reward {
+  id: string;
+  name: string;
+  percentage: number;
+  icon: string;
+  isUnlocked: boolean;
+}
 
 export interface Transaction {
   id: string;
@@ -11,6 +22,24 @@ export interface Transaction {
   date: string;
   note?: string;
   status: 'COMPLETED' | 'PENDING';
+}
+
+export interface DailyPlan {
+  id: string;
+  agentId: string;
+  title: string;
+  time: string;
+  date: string;
+  isCompleted: boolean;
+}
+
+export interface LongTermGoal {
+  id: string;
+  agentId: string;
+  title: string;
+  progress: number; // 0-100
+  targetDate: string;
+  description: string;
 }
 
 export interface ChatMessage {
@@ -28,19 +57,14 @@ export interface User {
   role: Role;
   photoUrl?: string;
   phone?: string;
-  status?: string; // e.g., "Oltin Agent"
-  dailyGoal?: string;
-  longTermGoal?: string;
+  status?: string;
   bonusBalance?: number;
   transactions?: Transaction[];
-}
-
-export interface Reward {
-  id: string;
-  name: string;
-  percentage: number;
-  icon: string;
-  isUnlocked: boolean;
+  dailyPlans?: DailyPlan[];
+  longTermGoals?: LongTermGoal[];
+  // Added goal fields used in ProfileView
+  dailyGoal?: string;
+  longTermGoal?: string;
 }
 
 export interface SaleRecord {
@@ -62,7 +86,7 @@ export interface SalesPlan {
   startDate: string;
   endDate: string;
   isActive: boolean;
-  isSecretKeyUnlocked?: boolean;
+  // Added flag used for reward unlocking logic
   isDirectorSigned?: boolean;
 }
 
