@@ -1,8 +1,5 @@
-
 {
-  "name": "GIGO TOYS Management Platform",
-  "description": "A streamlined sales and inventory management system for GIGO TOYS, featuring specialized dashboards for Director Elyor Saydullayev and his sales agents (Muxlisa, Ruxshona, Aziza).",
-  "requestFramePermissions": [
-    "camera"
-  ]
+  "name": "GIGO TOYS Sales Control System",
+  "description": "A comprehensive sales monitoring and planning platform for GIGO TOYS, featuring multi-role access for directors and agents, real-time statistics, and performance-based reward tracking.",
+  "requestFramePermissions": []
 }

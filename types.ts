@@ -1,60 +1,68 @@
 
 export enum UserRole {
-  DIRECTOR = 'DIRECTOR',
-  AGENT = 'AGENT'
+  ADMIN = 'director',
+  AGENT = 'employee'
 }
+
+export const PRODUCT_RATIOS = {
+  qurt: 0.15,
+  toy: 0.40,
+  milichovka: 0.45
+};
 
 export interface UserProfile {
-  uid: string;
+  id: string;
+  name: string;
   email: string;
-  displayName: string;
   role: UserRole;
-  notificationsEnabled?: boolean;
+  active: boolean;
+  createdAt: number;
 }
 
-export interface ChatMessage {
+export interface SaleEntry {
   id: string;
-  senderId: string;
+  userId: string;
+  userName: string;
+  date: string;
+  qurt: number;
+  toy: number;
+  milichovka: number;
+  total: number;
+  status: 'pending' | 'approved';
+  createdAt: number;
+  warning?: string;
+}
+
+export interface SalesPlan {
+  id: string;
+  userId: string;
+  total3Months: number;
+  monthlyPlan: number;
+  dailyPlan: number;
+  startDate: number;
+}
+
+export const REWARDS = [
+  { threshold: 85, name: "Kir yuvish mashinasi", icon: '🧺' },
+  { threshold: 90, name: "Muzlatgich", icon: '🧊' },
+  { threshold: 100, name: "Konditsioner + 'Yashirin Quti'", icon: '🎁' },
+];
+
+export interface AuditLog {
+  id: string;
+  // Fix: Added userId to support user tracking in audit logs and resolve TypeScript property errors
+  userId: string;
+  action: string;
+  details: string;
+  timestamp: number;
+  userName: string;
+}
+
+export interface Note {
+  id: string;
+  userId: string; // Recipient ID
+  message: string;
   senderName: string;
-  text: string;
   timestamp: number;
-}
-
-export interface DailyPlan {
-  id: string;
-  agentId: string;
-  text: string;
-  isCompleted: boolean;
-  timestamp: number;
-}
-
-export interface LongTermGoal {
-  id: string;
-  agentId: string;
-  title: string;
-  targetAmount: number;
-  currentAmount: number;
-  icon: string;
-}
-
-export interface Sale {
-  id: string;
-  agentId: string;
-  agentName: string;
-  category: string;
-  totalPrice: number;
-  isDebt: boolean;
-  timestamp: number;
-  notes?: string;
-}
-
-export interface Reward {
-  threshold: number;
-  title: string;
-  description: string;
-  icon: string;
-}
-
-export interface SalaryConfig {
-  commissionRate: number;
+  read: boolean; // 12.2 status logic
 }
