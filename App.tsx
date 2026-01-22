@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, SaleReport, AgentPlan, REWARD_THRESHOLDS } from './types';
+import { User, SaleReport, AgentPlan } from './types';
 import LoginForm from './components/LoginForm';
 import DirectorDashboard from './components/DirectorDashboard';
 import AgentPanel from './components/AgentPanel';
@@ -93,32 +93,12 @@ const App: React.FC = () => {
 
   const handleLogout = () => setUser(null);
 
-  const addOrUpdateReport = async (reportData: Omit<SaleReport, 'status'>) => {
-    const isUpdate = !!reportData.id && reports.some(r => r.id === reportData.id);
-    
-    if (isUpdate) {
-      const oldReport = reports.find(r => r.id === reportData.id);
-      if (oldReport?.status === 'approved') {
-        const plan = plans.find(p => p.agentId === reportData.agentId);
-        if (plan) {
-          await updateDoc(doc(db, "plans", plan.agentId), {
-            currentTotal: plan.currentTotal - oldReport.totalAmount
-          });
-        }
-      }
-
-      await setDoc(doc(db, "reports", reportData.id), {
-        ...reportData,
-        status: 'pending',
-        lastEditedBy: user?.name
-      }, { merge: true });
-    } else {
-      await addDoc(collection(db, "reports"), {
-        ...reportData,
-        status: 'pending',
-        createdAt: new Date().toISOString()
-      });
-    }
+  const addReport = async (reportData: Omit<SaleReport, 'status' | 'id'>) => {
+    await addDoc(collection(db, "reports"), {
+      ...reportData,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
   };
 
   const approveReport = async (reportId: string) => {
@@ -140,7 +120,11 @@ const App: React.FC = () => {
     const report = reports.find(r => r.id === reportId);
     if (!report) return;
 
-    const confirmDelete = window.confirm("Haqiqatdan ham ushbu hisobotni o'chirmoqchimisiz?");
+    const confirmDelete = window.confirm(
+      report.status === 'pending' 
+        ? "Haqiqatdan ham ushbu hisobotni rad etmoqchimisiz?" 
+        : "Haqiqatdan ham ushbu tasdiqlangan hisobotni o'chirmoqchimisiz?"
+    );
     if (!confirmDelete) return;
 
     if (report.status === 'approved') {
@@ -176,7 +160,6 @@ const App: React.FC = () => {
               plans={plans} 
               onUpdatePlan={updatePlanConfig} 
               onApprove={approveReport}
-              onEditReport={addOrUpdateReport}
               onDeleteReport={deleteReport}
             />
           ) : (
@@ -184,7 +167,7 @@ const App: React.FC = () => {
               agent={user} 
               reports={reports} 
               plan={plans.find(p => p.agentId === user.id) || { agentId: user.id, totalTarget: 0, currentTotal: 0, startDate: '', endDate: '' }}
-              onAddReport={addOrUpdateReport}
+              onAddReport={addReport}
             />
           )
         )}

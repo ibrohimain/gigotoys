@@ -1,4 +1,4 @@
-import * as firebase from 'firebase/app';
+import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -11,8 +11,8 @@ const firebaseConfig = {
   measurementId: "G-QELMWWJD5Q"
 };
 
-// Fix: Use namespace import to resolve 'no exported member initializeApp' error on line 1
-export const app = firebase.initializeApp(firebaseConfig);
+// Fix: Use named import for initializeApp to comply with Firebase modular SDK
+export const app = initializeApp(firebaseConfig);
 // Analytics is set to null as the 'getAnalytics' export was not found in the current environment
 export const analytics = null;
 // Initialize Cloud Firestore and get a reference to the service
