@@ -1,5 +1,8 @@
+
 {
-  "name": "GIGO TOY - Sales Management System",
-  "description": "A comprehensive sales tracking and management system for GIGO TOY, featuring agent performance tracking, 3-month goal planning, and detailed category-based statistics.",
-  "requestFramePermissions": []
+  "name": "GIGO TOYS Management Platform",
+  "description": "A streamlined sales and inventory management system for GIGO TOYS, featuring specialized dashboards for Director Elyor Saydullayev and his sales agents (Muxlisa, Ruxshona, Aziza).",
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

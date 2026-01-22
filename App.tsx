@@ -1,51 +1,73 @@
 
 import React, { useState, useEffect } from 'react';
-import { User } from './types';
-import { USERS } from './constants';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from './firebase';
+import { UserProfile, UserRole } from './types';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import Layout from './components/Layout';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('gigo_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const role = firebaseUser.email === 'elyor@gmail.com' ? UserRole.DIRECTOR : UserRole.AGENT;
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          role: role
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handleLogin = (email: string) => {
-    const foundUser = USERS.find(u => u.email === email.toLowerCase());
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('gigo_user', JSON.stringify(foundUser));
-    } else {
-      alert('Email topilmadi. Iltimos tekshirib qaytadan urinib ko\'ring.');
-    }
+  const handleLogout = async () => {
+    await signOut(auth);
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('gigo_user');
-  };
-
-  if (loading) return (
-    <div className="h-screen w-screen flex items-center justify-center bg-indigo-600">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+          <p className="text-slate-600 font-medium tracking-tight">GIGO TOYS tizimi yuklanmoqda...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {user ? (
-        <Dashboard user={user} onLogout={handleLogout} />
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route 
+          path="/login" 
+          element={user ? <Navigate to="/" /> : <Login />} 
+        />
+        <Route 
+          path="/" 
+          element={
+            user ? (
+              <Layout user={user} onLogout={handleLogout} activeTab={activeTab} setActiveTab={setActiveTab}>
+                <Dashboard user={user} activeTab={activeTab} setActiveTab={setActiveTab} />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+      </Routes>
+    </Router>
   );
 };
 
