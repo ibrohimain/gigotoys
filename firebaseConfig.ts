@@ -1,6 +1,6 @@
 
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLcK9KLfL_TIFwT_o7_eE4Gu-8DLnxWRQ",
@@ -12,5 +12,9 @@ const firebaseConfig = {
   measurementId: "G-QELMWWJD5Q"
 };
 
+// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+// Analytics is set to null as the 'getAnalytics' export was not found in the current environment
+export const analytics = null;
+// Initialize Cloud Firestore and get a reference to the service
+export const db = getFirestore(app);
