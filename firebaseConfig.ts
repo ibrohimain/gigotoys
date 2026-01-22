@@ -1,6 +1,5 @@
-
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLcK9KLfL_TIFwT_o7_eE4Gu-8DLnxWRQ",
@@ -12,7 +11,7 @@ const firebaseConfig = {
   measurementId: "G-QELMWWJD5Q"
 };
 
-// Initialize Firebase
+// Fix: Use initializeApp directly from 'firebase/app' to avoid property access errors on the namespace object
 export const app = initializeApp(firebaseConfig);
 // Analytics is set to null as the 'getAnalytics' export was not found in the current environment
 export const analytics = null;

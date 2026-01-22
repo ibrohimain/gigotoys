@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, SaleReport, AgentPlan, CATEGORY_RATIOS, REWARD_THRESHOLDS, getDaysBetween } from '../types';
+import { User, SaleReport, AgentPlan, REWARD_THRESHOLDS, getDaysBetween } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface Props {
@@ -18,14 +18,16 @@ const AgentPanel: React.FC<Props> = ({ agent, reports, plan, onAddReport }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const approvedReports = reports.filter(r => r.status === 'approved');
-  const progress = Math.round((plan.currentTotal / plan.totalTarget) * 100);
-  const daysLeft = getDaysBetween(new Date().toISOString().split('T')[0], plan.endDate);
+  const totalTarget = plan?.totalTarget || 1; // avoid division by zero
+  const currentTotal = plan?.currentTotal || 0;
+  const progress = Math.round((currentTotal / totalTarget) * 100);
+  const daysLeft = getDaysBetween(new Date().toISOString().split('T')[0], plan?.endDate || '');
 
   // Category sum for the agent's own pie chart
   const myCategorySum = approvedReports.reduce((acc, curr) => ({
-    qurt: acc.qurt + curr.categories.qurt,
-    toys: acc.toys + curr.categories.toys,
-    milchofka: acc.milchofka + curr.categories.milchofka,
+    qurt: acc.qurt + (curr.categories?.qurt || 0),
+    toys: acc.toys + (curr.categories?.toys || 0),
+    milchofka: acc.milchofka + (curr.categories?.milchofka || 0),
   }), { qurt: 0, toys: 0, milchofka: 0 });
 
   const pieData = [
@@ -64,7 +66,7 @@ const AgentPanel: React.FC<Props> = ({ agent, reports, plan, onAddReport }) => {
           <div className="flex justify-between items-end mb-4">
             <div>
               <h2 className="text-3xl font-black text-slate-800">Sizning Progressingiz</h2>
-              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Maqsad: {plan.totalTarget.toLocaleString()} so'm</p>
+              <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-1">Maqsad: {(plan?.totalTarget || 0).toLocaleString()} so'm</p>
             </div>
             <span className="text-4xl font-black text-orange-500">{progress}%</span>
           </div>
@@ -72,9 +74,9 @@ const AgentPanel: React.FC<Props> = ({ agent, reports, plan, onAddReport }) => {
             <div className="bg-orange-500 h-full shadow-[0_0_20px_rgba(249,115,22,0.3)] transition-all duration-1000" style={{ width: `${Math.min(progress, 100)}%` }}></div>
           </div>
           <div className="flex justify-between mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            <span>Boshlanish: {plan.startDate}</span>
+            <span>Boshlanish: {plan?.startDate || '---'}</span>
             <span className="text-orange-600">Tugashga {daysLeft} kun qoldi</span>
-            <span>Tugash: {plan.endDate}</span>
+            <span>Tugash: {plan?.endDate || '---'}</span>
           </div>
         </div>
         <div className="bg-slate-900 rounded-[2rem] p-6 text-white flex flex-col justify-center text-center">
@@ -119,21 +121,21 @@ const AgentPanel: React.FC<Props> = ({ agent, reports, plan, onAddReport }) => {
         </div>
 
         {/* My Product Mix Pie Chart */}
-        <div className="bg-white p-8 rounded-[3rem] shadow-sm flex flex-col items-center">
+        <div className="bg-white p-8 rounded-[3rem] shadow-sm flex flex-col items-center min-h-[450px]">
           <h3 className="text-lg font-black text-slate-800 mb-6">Sotuv Ulushingiz</h3>
-          <div className="h-[300px] w-full">
+          <div className="h-[300px] w-full relative">
             {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie data={pieData} innerRadius={60} outerRadius={90} paddingAngle={10} dataKey="value">
                     {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
-                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <Tooltip formatter={(v: number) => (v || 0).toLocaleString()} />
                   <Legend iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-300 italic text-sm">Hali savdo yo'q</div>
+              <div className="h-full flex items-center justify-center text-slate-300 italic text-sm">Hali tasdiqlangan savdo yo'q</div>
             )}
           </div>
           <div className="mt-4 text-center">

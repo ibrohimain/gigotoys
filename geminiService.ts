@@ -1,11 +1,11 @@
-
 import { GoogleGenAI } from "@google/genai";
 import { SaleReport, AgentPlan } from "./types";
 
-// Always use a named parameter and obtain the API key exclusively from process.env.API_KEY
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const getSalesInsights = async (reports: SaleReport[], plans: AgentPlan[]) => {
+  // Always use a named parameter and obtain the API key exclusively from process.env.API_KEY.
+  // Creating a new instance inside the function ensures the client uses the most up-to-date configuration.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
   const prompt = `
     GIGO TOYS savdo ma'lumotlarini tahlil qiling:
     Hozirgi hisobotlar: ${JSON.stringify(reports)}
@@ -23,7 +23,7 @@ export const getSalesInsights = async (reports: SaleReport[], plans: AgentPlan[]
       model: "gemini-3-flash-preview",
       contents: prompt,
     });
-    // Use response.text property directly (not a method) to access the generated string
+    // Use response.text property directly (not a method) to access the generated string.
     return response.text;
   } catch (error) {
     console.error("Gemini AI Error:", error);

@@ -14,7 +14,8 @@ import {
   setDoc, 
   addDoc, 
   query, 
-  where 
+  where,
+  deleteDoc
 } from "firebase/firestore";
 
 const App: React.FC = () => {
@@ -51,7 +52,7 @@ const App: React.FC = () => {
         ...doc.data()
       })) as AgentPlan[];
       
-      // If no plans exist yet (first time setup), initialize them
+      // If no plans exist yet
       if (plansData.length === 0 && user.role === 'director') {
         const initialIds = ['muxlisa', 'aziza', 'ruxshona'];
         initialIds.forEach(async (id) => {
@@ -96,10 +97,7 @@ const App: React.FC = () => {
     const isUpdate = !!reportData.id && reports.some(r => r.id === reportData.id);
     
     if (isUpdate) {
-      // Update existing report
       const oldReport = reports.find(r => r.id === reportData.id);
-      
-      // If the report was already approved, we need to subtract its old amount from the plan first
       if (oldReport?.status === 'approved') {
         const plan = plans.find(p => p.agentId === reportData.agentId);
         if (plan) {
@@ -115,7 +113,6 @@ const App: React.FC = () => {
         lastEditedBy: user?.name
       }, { merge: true });
     } else {
-      // Add new report
       await addDoc(collection(db, "reports"), {
         ...reportData,
         status: 'pending',
@@ -127,19 +124,34 @@ const App: React.FC = () => {
   const approveReport = async (reportId: string) => {
     const report = reports.find(r => r.id === reportId);
     if (report && report.status === 'pending') {
-      // Update the plan's currentTotal
       const plan = plans.find(p => p.agentId === report.agentId);
       if (plan) {
         await updateDoc(doc(db, "plans", plan.agentId), {
           currentTotal: plan.currentTotal + report.totalAmount
         });
       }
-      
-      // Update report status
       await updateDoc(doc(db, "reports", reportId), {
         status: 'approved'
       });
     }
+  };
+
+  const deleteReport = async (reportId: string) => {
+    const report = reports.find(r => r.id === reportId);
+    if (!report) return;
+
+    const confirmDelete = window.confirm("Haqiqatdan ham ushbu hisobotni o'chirmoqchimisiz?");
+    if (!confirmDelete) return;
+
+    if (report.status === 'approved') {
+      const plan = plans.find(p => p.agentId === report.agentId);
+      if (plan) {
+        await updateDoc(doc(db, "plans", plan.agentId), {
+          currentTotal: Math.max(0, plan.currentTotal - report.totalAmount)
+        });
+      }
+    }
+    await deleteDoc(doc(db, "reports", reportId));
   };
 
   const updatePlanConfig = async (agentId: string, updates: Partial<AgentPlan>) => {
@@ -165,6 +177,7 @@ const App: React.FC = () => {
               onUpdatePlan={updatePlanConfig} 
               onApprove={approveReport}
               onEditReport={addOrUpdateReport}
+              onDeleteReport={deleteReport}
             />
           ) : (
             <AgentPanel 
