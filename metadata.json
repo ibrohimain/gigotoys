@@ -1,5 +1,8 @@
 {
-  "name": "GIGO TOYS Sales Control System",
-  "description": "A comprehensive sales monitoring and planning platform for GIGO TOYS, featuring multi-role access for directors and agents, real-time statistics, and performance-based reward tracking.",
-  "requestFramePermissions": []
+  "name": "GIGO TOYS Management System",
+  "description": "A comprehensive management dashboard for GIGO TOYS to track sales, agent performance, and business growth with AI-powered insights.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
 }

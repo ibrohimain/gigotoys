@@ -1,68 +1,60 @@
 
-export enum UserRole {
-  ADMIN = 'director',
-  AGENT = 'employee'
+export type Role = 'director' | 'agent';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
 }
 
-export const PRODUCT_RATIOS = {
+export interface ProductBreakdown {
+  qurt: number;
+  toys: number;
+  milchofka: number;
+}
+
+export interface SaleReport {
+  id: string;
+  agentId: string;
+  agentName: string;
+  date: string; // YYYY-MM-DD
+  categories: ProductBreakdown;
+  debt: number;
+  totalAmount: number;
+  status: 'pending' | 'approved';
+  lastEditedBy?: string;
+}
+
+export interface Reward {
+  threshold: number;
+  prize: string;
+  icon: string;
+}
+
+export interface AgentPlan {
+  agentId: string;
+  totalTarget: number;
+  currentTotal: number;
+  startDate: string;
+  endDate: string;
+}
+
+export const CATEGORY_RATIOS = {
   qurt: 0.15,
-  toy: 0.40,
-  milichovka: 0.45
+  toys: 0.40,
+  milchofka: 0.45
 };
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  active: boolean;
-  createdAt: number;
-}
-
-export interface SaleEntry {
-  id: string;
-  userId: string;
-  userName: string;
-  date: string;
-  qurt: number;
-  toy: number;
-  milichovka: number;
-  total: number;
-  status: 'pending' | 'approved';
-  createdAt: number;
-  warning?: string;
-}
-
-export interface SalesPlan {
-  id: string;
-  userId: string;
-  total3Months: number;
-  monthlyPlan: number;
-  dailyPlan: number;
-  startDate: number;
-}
-
-export const REWARDS = [
-  { threshold: 85, name: "Kir yuvish mashinasi", icon: '🧺' },
-  { threshold: 90, name: "Muzlatgich", icon: '🧊' },
-  { threshold: 100, name: "Konditsioner + 'Yashirin Quti'", icon: '🎁' },
+export const REWARD_THRESHOLDS: Reward[] = [
+  { threshold: 100, prize: 'Konditsioner + Sovg‘a', icon: 'fa-snowflake' },
+  { threshold: 90, prize: 'Muzlatgich', icon: 'fa-refrigerator' },
+  { threshold: 85, prize: 'Kir yuvish mashinasi', icon: 'fa-soap' }
 ];
 
-export interface AuditLog {
-  id: string;
-  // Fix: Added userId to support user tracking in audit logs and resolve TypeScript property errors
-  userId: string;
-  action: string;
-  details: string;
-  timestamp: number;
-  userName: string;
-}
-
-export interface Note {
-  id: string;
-  userId: string; // Recipient ID
-  message: string;
-  senderName: string;
-  timestamp: number;
-  read: boolean; // 12.2 status logic
-}
+export const getDaysBetween = (start: string, end: string) => {
+  const s = new Date(start);
+  const e = new Date(end);
+  const diff = e.getTime() - s.getTime();
+  return Math.max(Math.ceil(diff / (1000 * 3600 * 24)), 1);
+};
