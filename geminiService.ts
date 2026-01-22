@@ -19,8 +19,9 @@ export const getSalesInsights = async (reports: SaleReport[], plans: AgentPlan[]
   `;
 
   try {
+    // Fix: Using 'gemini-3-pro-preview' for advanced reasoning and data analysis as per complex text task guidelines.
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: 'gemini-3-pro-preview',
       contents: prompt,
     });
     // Use response.text property directly (not a method) to access the generated string.

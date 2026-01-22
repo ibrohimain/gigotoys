@@ -18,6 +18,9 @@ const DirectorDashboard: React.FC<Props> = ({ reports, plans, onUpdatePlan, onAp
   const [selectedAgent, setSelectedAgent] = useState<string | 'all'>('all');
   const [viewTab, setViewTab] = useState<'analytics' | 'reports' | 'calendar' | 'plans'>('analytics');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  
+  // Edit State
+  const [editingReport, setEditingReport] = useState<SaleReport | null>(null);
 
   const filteredReports = selectedAgent === 'all' 
     ? reports 
@@ -25,7 +28,6 @@ const DirectorDashboard: React.FC<Props> = ({ reports, plans, onUpdatePlan, onAp
 
   const approvedReports = filteredReports.filter(r => r.status === 'approved');
 
-  // PDF Export Function
   const exportToPDF = () => {
     const doc = new jsPDF() as any;
     const title = selectedAgent === 'all' ? "Barcha agentlar hisoboti" : `${selectedAgent.toUpperCase()} hisoboti`;
@@ -81,6 +83,20 @@ const DirectorDashboard: React.FC<Props> = ({ reports, plans, onUpdatePlan, onAp
     return reports.filter(r => r.date === date && r.status === 'approved');
   };
 
+  const handleSaveEdit = () => {
+    if (editingReport) {
+      const newTotal = Number(editingReport.categories.qurt) + 
+                       Number(editingReport.categories.toys) + 
+                       Number(editingReport.categories.milchofka);
+      
+      onEditReport({
+        ...editingReport,
+        totalAmount: newTotal
+      });
+      setEditingReport(null);
+    }
+  };
+
   const totalSales = plans.reduce((acc, curr) => acc + (curr.currentTotal || 0), 0);
   const now = new Date();
   const year = now.getFullYear();
@@ -89,7 +105,68 @@ const DirectorDashboard: React.FC<Props> = ({ reports, plans, onUpdatePlan, onAp
 
   return (
     <div className="space-y-8 animate-fadeIn relative">
-      {/* Daily Details Modal Overlay */}
+      {/* Edit Report Modal */}
+      {editingReport && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fadeIn">
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-8 animate-slideUp border border-slate-200">
+            <h3 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-3">
+              <i className="fa-solid fa-pen-to-square text-orange-500"></i>
+              Hisobotni Tahrirlash
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Agent</label>
+                <div className="p-4 bg-slate-100 rounded-2xl font-bold text-slate-600 capitalize">{editingReport.agentName}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Qurt</label>
+                  <input 
+                    type="number" 
+                    value={editingReport.categories.qurt}
+                    onChange={e => setEditingReport({...editingReport, categories: {...editingReport.categories, qurt: Number(e.target.value)}})}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest">O'yinchoq</label>
+                  <input 
+                    type="number" 
+                    value={editingReport.categories.toys}
+                    onChange={e => setEditingReport({...editingReport, categories: {...editingReport.categories, toys: Number(e.target.value)}})}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black text-green-500 uppercase tracking-widest">Milchofka</label>
+                <input 
+                  type="number" 
+                  value={editingReport.categories.milchofka}
+                  onChange={e => setEditingReport({...editingReport, categories: {...editingReport.categories, milchofka: Number(e.target.value)}})}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold"
+                />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button 
+                  onClick={() => setEditingReport(null)}
+                  className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Bekor qilish
+                </button>
+                <button 
+                  onClick={handleSaveEdit}
+                  className="flex-1 bg-orange-500 text-white py-3 rounded-xl font-black shadow-lg shadow-orange-200 hover:bg-orange-600 transition-all"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Details Modal */}
       {selectedDate && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-slideUp">
@@ -284,9 +361,16 @@ const DirectorDashboard: React.FC<Props> = ({ reports, plans, onUpdatePlan, onAp
                     {r.status === 'pending' && (
                       <button 
                         onClick={() => onApprove(r.id)} 
-                        className="bg-green-500 text-white text-[10px] px-3 py-1.5 rounded-lg font-black hover:bg-green-600"
+                        className="bg-green-500 text-white text-[10px] px-3 py-1.5 rounded-lg font-black hover:bg-green-600 shadow-sm shadow-green-100 transition-all active:scale-90"
                       >Tasdiqlash</button>
                     )}
+                    <button 
+                      onClick={() => setEditingReport(r)} 
+                      className="text-blue-500 hover:bg-blue-50 text-[10px] px-3 py-1.5 rounded-lg font-black transition-colors"
+                      title="Hisobotni tahrirlash"
+                    >
+                      <i className="fa-solid fa-pen"></i>
+                    </button>
                     <button 
                       onClick={() => onDeleteReport(r.id)} 
                       className="text-red-500 hover:bg-red-50 text-[10px] px-3 py-1.5 rounded-lg font-black transition-colors"
