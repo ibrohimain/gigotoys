@@ -1,5 +1,5 @@
 {
-  "name": "gigo-toys-management-system",
+  "name": "gigo-toys---sales-management-platform",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,9 +13,8 @@
     "react-dom": "^19.2.3",
     "firebase": "^12.8.0",
     "recharts": "^3.7.0",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
-    "@google/genai": "^1.38.0"
+    "@google/genai": "^1.38.0",
+    "lucide-react": "^0.562.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

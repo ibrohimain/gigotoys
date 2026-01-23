@@ -1,8 +1,5 @@
 {
-  "name": "GIGO TOYS Management System",
-  "description": "A comprehensive management dashboard for GIGO TOYS to track sales, agent performance, and business growth with AI-powered insights.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
+  "name": "GIGO TOYS - Sales Management Platform",
+  "description": "GIGO TOYS savdo firmasi uchun direktor va agentlar o'rtasidagi savdo hisobotlari va statistikasi platformasi.",
+  "requestFramePermissions": []
 }
